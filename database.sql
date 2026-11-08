@@ -1,0 +1,34 @@
+CREATE DATABASE IF NOT EXISTS visitor_slideshow CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE visitor_slideshow;
+CREATE TABLE IF NOT EXISTS visitors (
+ id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+ name VARCHAR(100) NOT NULL,
+ mobile VARCHAR(15) NOT NULL UNIQUE,
+ first_visit DATETIME NOT NULL,
+ last_visit DATETIME NOT NULL
+) ENGINE=InnoDB;
+CREATE TABLE IF NOT EXISTS photos (
+ id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+ visitor_id INT UNSIGNED NOT NULL,
+ filename VARCHAR(255) NOT NULL UNIQUE,
+ original_name VARCHAR(255) NOT NULL,
+ status ENUM('pending','approved','rejected') NOT NULL DEFAULT 'pending',
+ consent_given TINYINT(1) NOT NULL DEFAULT 0,
+ consent_at DATETIME NULL,
+ uploaded_at DATETIME NOT NULL,
+ INDEX idx_status_uploaded (status, uploaded_at),
+ CONSTRAINT fk_photos_visitor FOREIGN KEY (visitor_id) REFERENCES visitors(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+CREATE TABLE IF NOT EXISTS admins (
+ id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+ username VARCHAR(60) NOT NULL UNIQUE,
+ password_hash VARCHAR(255) NOT NULL
+) ENGINE=InnoDB;
+CREATE TABLE IF NOT EXISTS removal_requests (
+ id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+ photo_id BIGINT UNSIGNED NULL,
+ contact_mobile VARCHAR(15) NOT NULL,
+ message TEXT NULL,
+ status ENUM('pending','completed') NOT NULL DEFAULT 'pending',
+ created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
